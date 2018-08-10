@@ -1,0 +1,37 @@
+- name: key
+  hosts: local
+  tasks: 
+  - name: generate_key
+    shell: ssh-keygen -q -t rsa -f devops
+    creates: devops
+  - name: convert_key
+    shell: openssl rsa -in devops -outform pem > devops.pem
+- name: user create
+  hosts: webservers appservers   
+  become: yes
+  vars: 
+    user_name: devops
+    user_group: devops
+  tasks:
+  - name: Ensure group exists
+    group:
+      name: "{{ user_group }}"
+      state: present
+  - name: user create
+    user:
+      name: "{{ user_name }}"
+      group: "{{ user_group }}"
+      create_home: True  
+  - name: copy key
+    authorized_key:
+      user: "{{ user_name }}"
+      key: "{{ lookup('file', '/home/vagrant/ansible/day1/devops.pub') }}"
+      path: '/home/{{ user_name }}/.ssh/authorized_keys'
+      manage_dir: False
+  - name: Allow specified groups to sudo
+    template: 
+      src: sudoers.j2
+      dest: '/etc/sudoers.d/{{ user_name }}'
+
+
+     

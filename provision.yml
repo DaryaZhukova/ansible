@@ -1,0 +1,67 @@
+- name: provision_web
+  hosts: webservers   
+  become: yes
+  tasks:
+  - name: Install the httpd
+    yum: 
+      name: httpd
+  - name: copy config
+    copy:
+      src: /home/vagrant/ansible/day1/files/custom.conf
+      dest: /etc/httpd/conf.d/custom.conf
+  - name: start the httpd service
+    service:
+      name: httpd
+      state: started
+- name: provision_app
+  hosts: appservers           
+  become: yes
+  vars:
+    user_name: jenkins
+    user_group: jenkins
+    jenkins_repo_url: https://pkg.jenkins.io/redhat/jenkins.repo
+    jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
+    jenkins_pkg_url: https://pkg.jenkins.io/redhat
+    jenkins_version: 2.136
+  tasks:
+  - name: Ensure group exists
+    group:
+      name: "{{ user_group }}"
+      state: present
+  - name: user create
+    user:
+      name: "{{ user_name }}"
+      group: "{{ user_group }}"
+      create_home: True
+  - name: Install java package 
+    yum: 
+      name: java 
+      state: installed
+  - name: Ensure Jenkins repo is installed.
+    get_url:
+      url: "{{ jenkins_repo_url }}"
+      dest: /etc/yum.repos.d/jenkins.repo
+    when: jenkins_repo_url != ''
+  - name: Add Jenkins repo GPG key.
+    rpm_key:
+      state: present
+      key: "{{ jenkins_repo_key_url }}"
+  - name: Download specific Jenkins version.
+    get_url:
+      url: "{{ jenkins_pkg_url }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
+      dest: "/home/{{ user_name }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
+  - name: Ensure Jenkins is installed.
+    package:
+      name: /home/{{ user_name }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm
+      state: present
+  - name: Ensure Jenkins is started and runs on startup.
+    service: 
+      name: jenkins 
+      state: started 
+      enabled: yes
+
+
+
+
+
+     
