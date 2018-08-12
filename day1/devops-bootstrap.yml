@@ -6,6 +6,10 @@
     creates: devops
   - name: convert_key
     shell: openssl rsa -in devops -outform pem > devops.pem
+  - name: Change permissions
+    file:
+      path: devops.pem
+      mode: 0600
 - name: user create
   hosts: webservers appservers   
   become: yes
@@ -25,7 +29,7 @@
   - name: copy key
     authorized_key:
       user: "{{ user_name }}"
-      key: "{{ lookup('file', '/home/vagrant/ansible/day1/devops.pub') }}"
+      key: "{{ lookup('file', '~/ansible/day1/devops.pub') }}"
       path: '/home/{{ user_name }}/.ssh/authorized_keys'
       manage_dir: False
   - name: Allow specified groups to sudo

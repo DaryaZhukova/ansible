@@ -1,0 +1,6 @@
+- name: Install java package
+  become: yes
+  yum:
+    name: java-1.{{ jre_open_jdk_version }}.0
+    state: present
+

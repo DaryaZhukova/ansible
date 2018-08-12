@@ -1,0 +1,7 @@
+local ansible_connection=local 
+[webservers]
+httpd ansible_host=192.168.13.3 ansible_user=vagrant ansible_connection=ssh
+[appservers]
+jenkins ansible_host=192.168.13.4 ansible_user=vagrant ansible_connection=ssh
+
+

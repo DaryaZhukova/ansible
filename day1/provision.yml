@@ -5,10 +5,10 @@
   - name: Install the httpd
     yum: 
       name: httpd
-  - name: copy config
-    copy:
-      src: /home/vagrant/ansible/day1/files/custom.conf
-      dest: /etc/httpd/conf.d/custom.conf
+  - name: Configuring proxy
+    template:
+      src: proxy.j2
+      dest: '/etc/httpd/conf.d/proxy.conf'
   - name: start the httpd service
     service:
       name: httpd
@@ -59,7 +59,10 @@
       name: jenkins 
       state: started 
       enabled: yes
-
+  - name: Wait until Jenkins starts
+    wait_for:
+      path: /var/log/jenkins/jenkins.log
+      search_regex: "Jenkins is fully up and running"
 
 
 

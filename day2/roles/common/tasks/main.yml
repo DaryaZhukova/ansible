@@ -1,0 +1,9 @@
+- name: generate_key
+  shell: ssh-keygen -q -t rsa -f devops
+- name: convert_key
+  shell: openssl rsa -in devops -outform pem > devops.pem
+- name: Change permissions
+  file:
+    path: devops.pem
+    mode: 0600
+

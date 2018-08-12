@@ -1,0 +1,21 @@
+- name: Generate key
+  hosts: local
+  roles: 
+  - common
+
+- name: Configuring devops user
+  hosts: nodes
+  roles:
+  - devops_user
+
+- name: Install httpd
+  hosts: webservers
+  roles:
+  - httpd
+
+- name: Install Java & Jenkins
+  vars: 
+  - jenkins_version: 2.136
+  hosts: appservers
+  roles:
+  - jenkins
