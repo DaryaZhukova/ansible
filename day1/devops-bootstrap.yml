@@ -12,30 +12,31 @@
       mode: 0600
 - name: user create
   hosts: webservers appservers   
-  become: yes
   vars: 
     user_name: devops
     user_group: devops
   tasks:
   - name: Ensure group exists
+    become: yes
     group:
       name: "{{ user_group }}"
       state: present
   - name: user create
+    become: yes
     user:
       name: "{{ user_name }}"
       group: "{{ user_group }}"
       create_home: True  
-  - name: copy key
-    authorized_key:
-      user: "{{ user_name }}"
-      key: "{{ lookup('file', '~/ansible/day1/devops.pub') }}"
-      path: '/home/{{ user_name }}/.ssh/authorized_keys'
-      manage_dir: False
   - name: Allow specified groups to sudo
+    become: yes
     template: 
       src: sudoers.j2
       dest: '/etc/sudoers.d/{{ user_name }}'
+  - name: copy key
+    become: yes
+    authorized_key:
+      user: "{{ user_name }}"
+      key: "{{ lookup('file', '~/ansible/day1/devops.pub') }}"
 
 
      

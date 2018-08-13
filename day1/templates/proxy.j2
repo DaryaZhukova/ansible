@@ -1,5 +1,5 @@
 <VirtualHost *:80>
     ServerName {{ hostvars[groups['appservers'][0]].ansible_host }}
-    ProxyPass / http://{{ hostvars[groups['appservers'][0]].ansible_host }}:8080/ nocanon
+    ProxyPass / http://{{ hostvars[groups['appservers'][0]].ansible_host }}:{{ jenkins_port }}/ nocanon
 </VirtualHost>
 

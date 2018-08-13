@@ -1,65 +1,62 @@
 - name: provision_web
   hosts: webservers   
-  become: yes
   tasks:
   - name: Install the httpd
+    become: yes
     yum: 
       name: httpd
   - name: Configuring proxy
+    become: yes
     template:
       src: proxy.j2
       dest: '/etc/httpd/conf.d/proxy.conf'
   - name: start the httpd service
+    become: yes
     service:
       name: httpd
       state: started
 - name: provision_app
   hosts: appservers           
-  become: yes
   vars:
     user_name: jenkins
     user_group: jenkins
-    jenkins_repo_url: https://pkg.jenkins.io/redhat/jenkins.repo
-    jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
-    jenkins_pkg_url: https://pkg.jenkins.io/redhat
-    jenkins_version: 2.136
+    jenkins_pkg_url: http://mirrors.jenkins.io/war-stable/
+    jenkins_version: 2.121.2
   tasks:
   - name: Ensure group exists
+    become: yes
     group:
       name: "{{ user_group }}"
       state: present
   - name: user create
+    become: yes
     user:
       name: "{{ user_name }}"
       group: "{{ user_group }}"
       create_home: True
   - name: Install java package 
+    become: yes
     yum: 
       name: java 
       state: installed
-  - name: Ensure Jenkins repo is installed.
+  - name: Download Jenkins version
+    become_user: "{{ user_name }}"
+    become: yes
     get_url:
-      url: "{{ jenkins_repo_url }}"
-      dest: /etc/yum.repos.d/jenkins.repo
-    when: jenkins_repo_url != ''
-  - name: Add Jenkins repo GPG key.
-    rpm_key:
-      state: present
-      key: "{{ jenkins_repo_key_url }}"
-  - name: Download specific Jenkins version.
-    get_url:
-      url: "{{ jenkins_pkg_url }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
-      dest: "/home/{{ user_name }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
-  - name: Ensure Jenkins is installed.
-    package:
-      name: /home/{{ user_name }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm
-      state: present
+      url: "{{ jenkins_pkg_url }}/{{ jenkins_version }}/jenkins.war"
+      dest: "/home/{{ user_name }}"
+  - name: Create jenkins service
+    become: yes
+    template:
+      src: jenkins.j2
+      dest: '/etc/systemd/system/jenkins.service'
   - name: Ensure Jenkins is started and runs on startup.
     service: 
       name: jenkins 
       state: started 
       enabled: yes
   - name: Wait until Jenkins starts
+    become: yes
     wait_for:
       path: /var/log/jenkins/jenkins.log
       search_regex: "Jenkins is fully up and running"
