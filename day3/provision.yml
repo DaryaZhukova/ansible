@@ -9,9 +9,15 @@
   tasks:
   roles: 
   - common
-  post_tasks:
-  - debug:
-      msg: "{{ ansible_local }}"     
+  post_tasks: 
+  - name: Clear keys
+    become: yes
+    file:
+      path: 
+      - devops
+      - devops.pub
+      state: absent
+
 
 - name: Configuring devops user
   hosts: nodes
@@ -28,9 +34,6 @@
   hosts: webservers
   roles:
   - httpd
-  post_tasks:
-  - debug:
-      msg: "{{ ansible_local }}"     
 
 - name: Install Java & Jenkins
   vars: 
@@ -38,6 +41,3 @@
   hosts: appservers
   roles:
   - jenkins
-  post_tasks:
-  - debug:
-      msg: "{{ ansible_local }}"     
