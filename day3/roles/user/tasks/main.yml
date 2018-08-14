@@ -12,7 +12,7 @@
     group: "{{ user_group }}"
     groups: "{{ (user_groups | join(',')) }}"
     create_home: "{{ create_home }}"
-    home: "{{ user_home }}"
+    home: "{{ user_home|default(omit) }}"
 - name: Allow specified groups to sudo
   become: yes
   template:
@@ -22,22 +22,11 @@
   become: yes
   authorized_key:
     user: "{{ user_name }}"
-    key: "{{ lookup('file', '~/ansible/day2/devops.pub') }}"
-- name: Create fact folder
-  become: yes
-  file:
-    path: /etc/ansible/facts.d
-    state: directory
-- name: Get version
-  shell: id -u devops 2>&1
-  register: user_id
-  changed_when: no
+    key: "{{ item }}"
+  with_file: "{{authorized_keys}}"
 - name: Save fact
   become: yes
-  copy:
-    content:
-      {
-        "User": "{{ user_name }}", "User ID": "{{ user_id.stdout }}", "User group": "{{ user_group }}"
-      }
-    dest: /etc/ansible/facts.d/user.fact
+  template:
+    src: user.j2  
+    dest: "/etc/ansible/facts.d/user.fact"
 

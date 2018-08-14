@@ -1,17 +1,17 @@
 - name: generate_key
-  shell: ssh-keygen -q -t rsa -f "{{user_key_name}}"
+  shell: ssh-keygen -q -t rsa -f "{{user_name}}"
 - name: convert_key
-  shell: openssl rsa -in "{{user_key_name}}" -outform pem > "{{user_key_name}}.pem"
+  shell: openssl rsa -in "{{user_name}}" -outform pem > "{{user_name}}.pem"
 - name: Change permissions
   file:
-    path: "{{user_key_name}}.pem"
+    path: "{{user_name}}.pem"
     mode: 0600
 - name: Save fact
   become: yes
   copy:
     content:
       {
-        "key generated for user": "{{user_key_name}}"
+        "key generated for user": "{{user_name}}"
       }
     dest: /etc/ansible/facts.d/user_key.fact
 

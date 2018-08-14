@@ -6,38 +6,21 @@
     file:
       path: /etc/ansible/facts.d
       state: directory
-  tasks:
-  roles: 
-  - common
-  post_tasks:
-  - debug:
-      msg: "{{ ansible_local }}"     
 
-- name: Configuring devops user
-  hosts: nodes
+
+- name: Configuring user
+  hosts: appservers
   pre_tasks:
   - name: Create fact folder
     become: yes
     file:
       path: /etc/ansible/facts.d
       state: directory
+  - name: Get Java version
+    debug: msg="version is"
+    when: 
+      - ansible_local.java.version == "1.8.0_181"
   roles:
-  - devops_user
+  - java
 
-- name: Install httpd
-  hosts: webservers
-  roles:
-  - httpd
-  post_tasks:
-  - debug:
-      msg: "{{ ansible_local }}"     
-
-- name: Install Java & Jenkins
-  vars: 
-  - jenkins_version: 2.121.2
-  hosts: appservers
-  roles:
-  - jenkins
-  post_tasks:
-  - debug:
-      msg: "{{ ansible_local }}"     
+sudo alternatives --install /usr/bin/java java  /opt/oracle/java/1.8/jre1.8.0_181/bin/java 1000

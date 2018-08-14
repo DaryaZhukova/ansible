@@ -1,18 +1,22 @@
-- name: Install java package
-  become: yes
-  yum:
-    name: java-1.{{ jre_open_jdk_version }}.0
-    state: present
-- name: Get version
-  shell: /usr/bin/java -version 2>&1|grep version|awk '{print $3}'| sed 's/"//g'
-  register: java_version
-  changed_when: no
-- name: Save fact
-  become: yes
-  copy:
-    content:
-      {
-        "version": "{{ java_version.stdout }}"
-      }
-    dest: /etc/ansible/facts.d/java.fact
-
+- block:
+  - name: Create java_home
+    become: yes
+    file:
+      path: "/opt/oracle/java/{{java_version}}"
+      state: directory
+      recurse: yes
+  - name: Copy java packaje
+    become: yes
+    copy:
+      src: "{{ packages[java_version] }}"
+      dest: /opt/oracle/java/{{ java_version }}/  
+  - name: Save fact
+    become: yes
+    copy:
+      content:
+        {
+          "version": "{{ java_version }}"
+        }
+      dest: /etc/ansible/facts.d/java.fact
+  when:
+    - ansible_local.java.version != java_version

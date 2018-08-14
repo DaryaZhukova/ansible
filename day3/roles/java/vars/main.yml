@@ -1,2 +1,4 @@
----
-# vars file for java
+packages:
+  1.8.0_181: "java/jre-8u181-linux-x64.tar.gz"
+  10.0.2: "jre-10.0.2_linux-x64_bin.tar.gz"
+

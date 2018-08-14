@@ -1,0 +1,16 @@
+{"User": "{{ user_name }}",
+"User ID": "{{ user_uid}}",
+"User group": "{{ user_group }}",
+{% if user_groups is defined %}
+    "User secondary group": [
+     "{{user_groups|join("\",\"") }}"
+     ],
+    {% else %}
+        "User secondary group": "not defined",
+{% endif %}
+{% if create_home == True %}
+    "User home": "{{ user_home }}"
+{% endif %}
+
+}
+
