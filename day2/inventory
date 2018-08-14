@@ -5,7 +5,7 @@ webservers
 appservers
 
 [webservers]
-httpd ansible_host=192.168.13.3
+httpd ansible_host=192.168.13.3 jenkins_port=8080
 
 [appservers]
 jenkins ansible_host=192.168.13.4

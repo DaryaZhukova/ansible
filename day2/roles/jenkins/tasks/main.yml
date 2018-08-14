@@ -2,36 +2,26 @@
   become: yes
   group:
     name: "{{ user_group }}"
-    gid: "{{ user_group_id }}"
     state: present
 - name: user create
   become: yes
   user:
     name: "{{ user_name }}"
     group: "{{ user_group }}"
-    uid: "{{ user_id }}"
     create_home: True
-- name: Ensure Jenkins repo is installed.
+- name: Download Jenkins version
+  become_user: "{{ user_name }}"
+  become: yes
   get_url:
-    url: "{{ jenkins_repo_url }}"
-    dest: /etc/yum.repos.d/jenkins.repo
-  when: jenkins_repo_url != ''
-- name: Add Jenkins repo GPG key.
-  rpm_key:
-    state: present
-    key: "{{ jenkins_repo_key_url }}"
-- name: Download specific Jenkins version.   
+    url: "{{ jenkins_pkg_url }}/{{ jenkins_version }}/jenkins.war"
+    dest: "/home/{{ user_name }}"
+  
+- name: Create jenkins service
   become: yes
-  get_url:      
-    url: "{{ jenkins_pkg_url }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
-    dest: "/home/{{ user_name }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
-- name: Ensure Jenkins is installed.
-  become: yes
-  package:
-    name: /home/{{ user_name }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm
-    state: present
+  template:
+    src: jenkins.j2
+    dest: '/etc/systemd/system/jenkins.service'
 - name: Ensure Jenkins is started and runs on startup.
-  become: yes 
   environment:
     JAVA_OPTS: "{{ java_opts }}"
   service:
@@ -43,13 +33,9 @@
   wait_for:
     path: /var/log/jenkins/jenkins.log
     search_regex: "Jenkins is fully up and running"
-- name: Create fact folder
-  become: yes
-  file:
-    path: /etc/ansible/facts.d
-    state: directory
 - name: Get version
-  shell: java -jar /usr/lib/jenkins/jenkins.war --version
+  become: yes
+  shell: java -jar "/home/{{ user_name }}/jenkins.war" --version
   register: jenkins_version
   changed_when: no
 - name: Save fact
