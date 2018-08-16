@@ -1,0 +1,32 @@
+- name: Creating infrastructure
+  hosts: localhost
+  vars:
+    net: first_day
+    image: sbeliakou/centos
+    container_name: "{{ image | replace('/', '-')}}"
+  tasks:
+  - name: Create network
+    shell: docker network create {{ net }}
+
+  - name: Create Containers
+    shell: docker run -l {{net}} --network={{ net }}  -d -p 808{{ item }}:80 --name {{ container_name }}-{{item}} {{ image }}
+    with_sequence: count=4
+    
+  - name: Inspect Network
+    shell: docker inspect {{container_name}}-{{ item }}| jq '.[].NetworkSettings.Networks.first_day.IPAddress'| sed 's/^.\(.*\).$/\1/'
+    with_sequence: count=4
+    register: mynet
+
+  - name: debugging
+    shell: echo {{item.stdout}} >> inventory1
+    with_items:
+    - "{{mynet.results}}"
+
+#  - name: Remove containers
+#    become: yes
+#    shell: docker stop {{container_name}}-{{item}} && docker rm {{container_name}}-{{item}}
+#    with_sequence: count=4
+
+#  - name: Remove net
+#    become: yes
+#    shell: docker network rm {{ net }}
