@@ -16,11 +16,6 @@
     file:
       path: /etc/ansible/facts.d
       state: directory
-  - name: Get Java version
-    debug: msg="version is"
-    when: 
-      - ansible_local.java.version == "1.8.0_181"
   roles:
-  - java
+  - jenkins
 
-sudo alternatives --install /usr/bin/java java  /opt/oracle/java/1.8/jre1.8.0_181/bin/java 1000
