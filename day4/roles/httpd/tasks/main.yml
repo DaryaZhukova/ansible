@@ -1,0 +1,37 @@
+- name: Install the httpd
+  become: yes
+  yum:
+    name: httpd
+- name: Start the httpd service
+  become: yes
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  notify: Check httpd process
+- name: Configuring proxy
+  become: yes
+  template:
+    src: proxy.j2
+    dest: '/etc/httpd/conf.d/proxy.conf'
+  notify: 
+    - Restart httpd service
+    - Check httpd process
+- name: Create fact folder
+  become: yes
+  file:
+    path: /etc/ansible/facts.d
+    state: directory  
+- name: Get version
+  shell: /usr/sbin/httpd -v 2>&1|grep "Server version"|awk '{print $3}'
+  register: httpd_version
+  changed_when: no
+- name: Save fact
+  become: yes
+  copy:
+    content:
+      {
+        "version": "{{ httpd_version.stdout }}"
+      }
+    dest: /etc/ansible/facts.d/httpd.fact
+

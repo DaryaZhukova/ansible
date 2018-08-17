@@ -7,11 +7,11 @@
       path: /etc/ansible/facts.d
       state: directory
   tasks:
-  roles: 
+  roles:
   - common
   post_tasks:
   - debug:
-      msg: "{{ ansible_local }}"     
+      msg: "{{ ansible_local }}"
 
 - name: Configuring devops user
   hosts: nodes
@@ -30,14 +30,15 @@
   - httpd
   post_tasks:
   - debug:
-      msg: "{{ ansible_local }}"     
+      msg: "{{ ansible_local }}"
 
 - name: Install Java & Jenkins
-  vars: 
+  vars:
   - jenkins_version: 2.121.2
   hosts: appservers
   roles:
   - jenkins
   post_tasks:
   - debug:
-      msg: "{{ ansible_local }}"     
+      msg: "{{ ansible_local }}"
+

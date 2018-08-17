@@ -1,0 +1,2 @@
+jenkins_version: 2.121.2
+java_opts: "-Xmx512m"

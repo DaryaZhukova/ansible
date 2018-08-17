@@ -6,10 +6,15 @@
     file:
       path: /etc/ansible/facts.d
       state: directory
+  tasks:
+  roles:
+  - common
+  post_tasks:
+  - debug:
+      msg: "{{ ansible_local }}"
 
-
-- name: Configuring user
-  hosts: appservers
+- name: Configuring devops user
+  hosts: nodes
   pre_tasks:
   - name: Create fact folder
     become: yes
@@ -17,5 +22,23 @@
       path: /etc/ansible/facts.d
       state: directory
   roles:
+  - devops_user
+
+- name: Install httpd
+  hosts: webservers
+  roles:
+  - httpd
+  post_tasks:
+  - debug:
+      msg: "{{ ansible_local }}"
+
+- name: Install Java & Jenkins
+  vars:
+  - jenkins_version: 2.121.2
+  hosts: appservers
+  roles:
   - jenkins
+  post_tasks:
+  - debug:
+      msg: "{{ ansible_local }}"
 

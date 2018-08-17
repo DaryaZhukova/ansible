@@ -1,0 +1,60 @@
+- name: Check that the jenkins.fact exists
+  stat:
+    path: /etc/ansible/facts.d/jenkins.fact
+  register: stat_result
+
+- block:
+
+  - name: Ensure group exists
+    become: yes
+    group:
+      name: "{{ user_group }}"
+      state: present
+  - name: user create
+    become: yes
+    user:
+      name: "{{ user_name }}"
+      group: "{{ user_group }}"
+      create_home: True
+
+  - name: Download Jenkins 
+    become_user: "{{ user_name }}"
+    become: yes
+    get_url:
+      url: "{{ jenkins_pkg_url }}/{{ jenkins_version }}/jenkins.war"
+      dest: "/home/{{ user_name }}"
+  
+  - name: Create jenkins service
+    become: yes
+    template:
+      src: jenkins.j2
+      dest: '/etc/systemd/system/jenkins.service'
+  - name: Ensure Jenkins is started and runs on startup.
+    become: yes
+    environment:
+      JAVA_OPTS: "{{ java_opts }}"
+    service:
+      name: jenkins
+      state: started
+      enabled: yes
+  - name: Wait until Jenkins starts
+    become: yes
+    wait_for:
+      path: /var/log/messages
+      search_regex: "Jenkins is fully up and running"
+  - name: Get version
+    become: yes
+    shell: java -jar "/home/{{ user_name }}/jenkins.war" --version
+    register: jenkins_version
+    changed_when: no
+  - name: Save fact
+    become: yes
+    copy:
+      content:
+        {
+          "version": "{{ jenkins_version.stdout }}"
+        }
+      dest: /etc/ansible/facts.d/jenkins.fact
+  when: 
+  - stat_result.stat.exists == False
+

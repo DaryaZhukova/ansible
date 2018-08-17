@@ -1,0 +1,17 @@
+local ansible_connection=local
+
+[nodes:children]
+webservers
+appservers
+
+[webservers]
+httpd ansible_host=192.168.13.3 jenkins_port=8080
+
+[appservers]
+jenkins ansible_host=192.168.13.4
+
+[all:vars]
+ansible_connection=ssh
+
+[nodes:vars]
+ansible_user=vagrant

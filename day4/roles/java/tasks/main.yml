@@ -1,0 +1,52 @@
+- name: Check that java.fact exists
+  stat:
+    path: /etc/ansible/facts.d/java.fact
+  register: stat_result
+
+- block:
+  - name: Create java_home
+    become: yes
+    file:
+      path: "/opt/oracle/java/{{java_version}}"
+      state: directory
+      recurse: yes
+  - name: Copy java packaje
+    become: yes
+    copy:
+      src: "{{ packages[java_version] }}"
+      dest: /opt/oracle/java/{{ java_version }}/  
+
+
+  - name: Unarchive tar
+    become: yes
+    shell: tar xf /opt/oracle/java/{{ java_version }}/{{ packages[java_version] }} -C /opt/oracle/java/{{ java_version }}/
+ 
+  - name: Set Java to alternatives
+    become: yes
+    alternatives:
+      name: java
+      link: /usr/bin/java
+      path: /opt/oracle/java/{{ java_version }}/jre-{{ java_version }}/bin/java
+      priority: 1
+
+  - name: Check version
+    shell: java -version 2>&1|grep version|awk '{print $3}'|sed 's/"//g'
+    register: java_real_version
+
+  - name: Print version
+    debug:
+      msg: "Java version {{ java_version }}  installed"
+    when:
+      - java_real_version.stdout==java_version
+
+  - name: Save fact
+    become: yes
+    copy:
+      content:
+        {
+          "version": "{{ java_version }}"
+        }
+      dest: /etc/ansible/facts.d/java.fact
+
+  when: (stat_result.stat.exists == False) or
+        (ansible_local.java.version != java_version)

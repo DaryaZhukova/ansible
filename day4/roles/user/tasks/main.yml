@@ -1,0 +1,32 @@
+- name: Ensure group exists
+  become: yes
+  group:
+    name: "{{ user_group }}"
+    gid: "{{ user_group_id }}"
+    state: present
+- name: user create
+  become: yes
+  user:
+    name: "{{ user_name }}"
+    uid: "{{ user_uid }}"
+    group: "{{ user_group }}"
+    groups: "{{ (user_groups | join(',')) }}"
+    create_home: "{{ create_home }}"
+    home: "{{ user_home|default(omit) }}"
+- name: Allow specified groups to sudo
+  become: yes
+  template:
+    src: sudoers.j2
+    dest: '/etc/sudoers.d/{{ user_name }}'
+- name: copy key
+  become: yes
+  authorized_key:
+    user: "{{ user_name }}"
+    key: "{{ item }}"
+  with_file: "{{authorized_keys}}"
+- name: Save fact
+  become: yes
+  template:
+    src: user.j2  
+    dest: "/etc/ansible/facts.d/user.fact"
+

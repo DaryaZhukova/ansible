@@ -1,0 +1,9 @@
+user_group: user
+user_group_id: 113
+user_name: user
+user_uid: 1113
+user_groups: ["users", "games"]
+create_home: True
+user_home: "/home/{{ user_name }}"
+authorized_keys: ["{{user_name}}.pub", "devops.pub"]
+sudoers: "ALL=(ALL) NOPASSWD: ALL"

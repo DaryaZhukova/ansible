@@ -1,0 +1,7 @@
+- import_playbook: generate_key.yml
+
+- import_playbook: conf_user.yml
+
+- import_playbook: httpd_install.yml
+
+- import_playbook: java_install.yml

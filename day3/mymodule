@@ -1,7 +1,0 @@
-import psutil
-for proc in psutil.process_iter(attrs=['pid', 'name', 'username']):
-    if proc.info['name'] == 'systemd':
-        print(proc.info['username'])
-
-for procs in psutil.process_iter():
-    print(procs.info)

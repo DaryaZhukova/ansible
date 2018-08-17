@@ -1,0 +1,8 @@
+- name: Install httpd
+  hosts: webservers
+  roles:
+  - httpd
+  post_tasks:
+  - debug:
+      msg: "{{ ansible_local }}"
+

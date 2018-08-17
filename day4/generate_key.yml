@@ -1,0 +1,15 @@
+- name: Generate key
+  hosts: local
+  pre_tasks:
+  - name: Create fact folder
+    become: yes
+    file:
+      path: /etc/ansible/facts.d
+      state: directory
+  tasks:
+  roles:
+  - common
+  post_tasks:
+  - debug:
+      msg: "{{ ansible_local }}"
+

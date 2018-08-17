@@ -1,0 +1,3 @@
+user_name: jenkins
+user_group: jenkins
+jenkins_pkg_url: http://mirrors.jenkins.io/war-stable/

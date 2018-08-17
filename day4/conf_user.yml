@@ -1,0 +1,11 @@
+- name: Configuring devops user
+  hosts: nodes
+  pre_tasks:
+  - name: Create fact folder
+    become: yes
+    file:
+      path: /etc/ansible/facts.d
+      state: directory
+  roles:
+  - user
+
