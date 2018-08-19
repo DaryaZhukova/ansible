@@ -1,4 +1,24 @@
 #!/usr/bin/python
+
+DOCUMENTATION = '''
+---
+module: mymodule
+version_added: historical
+short_description: Simple Ansible Module written on Python
+
+description:
+    - This module tests jenkins and httpd
+autor:
+    - "Darya Zhukova"
+'''
+
+EXAMPLES = """
+# ansible webservers -inventory -m mymodule -a "procname=httpd"
+- returns port listened by httpd
+  
+"""
+
+
 from ansible.module_utils.basic import AnsibleModule
 import psutil
 import json

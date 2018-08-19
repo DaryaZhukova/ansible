@@ -7,4 +7,5 @@
       src: proxy.j2
       dest: templates/config{{item}}.conf
     with_sequence: count=3
-
+    loop_control:
+      label: "configuration file{{item}} generated"

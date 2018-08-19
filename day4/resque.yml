@@ -1,0 +1,11 @@
+- hosts: local
+  tasks:
+  - block:
+    - shell: cat /etc/i_an_not_exist
+    - debug: msg="I'm OK"
+    rescue:
+    - shell: cat /etc/i_an_not_exist_too
+    - debug: msg="previous failed"
+    always:
+    - debug: msg="executed anyway"
+
