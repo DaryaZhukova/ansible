@@ -1,0 +1,10 @@
+- hosts: localhost
+  vars:
+    domain: testdomain{{item}}
+    domain_port: 800{{item}}
+  tasks: 
+  - template:
+      src: proxy.j2
+      dest: templates/config{{item}}.conf
+    with_sequence: count=3
+

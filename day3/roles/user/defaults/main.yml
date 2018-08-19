@@ -5,5 +5,5 @@ user_uid: 1113
 user_groups: ["users", "games"]
 create_home: True
 user_home: "/home/{{ user_name }}"
-authorized_keys: ["{{user_name}}.pub", "devops.pub"]
+authorized_keys: []
 sudoers: "ALL=(ALL) NOPASSWD: ALL"

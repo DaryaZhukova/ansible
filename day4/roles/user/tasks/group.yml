@@ -1,0 +1,8 @@
+- name: Ensure group exists
+  become_user: root
+  group:
+    name: "{{ user_group }}"
+    gid: "{{ user_group_id }}"
+    state: present
+  tags:
+  - group

@@ -2,6 +2,9 @@
   stat:
     path: /etc/ansible/facts.d/jenkins.fact
   register: stat_result
+  tags:
+  - appserver
+
 
 - block:
 
@@ -10,12 +13,18 @@
     group:
       name: "{{ user_group }}"
       state: present
+    tags:
+    - appserver
+
   - name: user create
     become: yes
     user:
       name: "{{ user_name }}"
       group: "{{ user_group }}"
       create_home: True
+    tags:
+    - appserver
+
 
   - name: Download Jenkins 
     become_user: "{{ user_name }}"
@@ -23,12 +32,17 @@
     get_url:
       url: "{{ jenkins_pkg_url }}/{{ jenkins_version }}/jenkins.war"
       dest: "/home/{{ user_name }}"
+    tags:
+    - appserver
   
   - name: Create jenkins service
     become: yes
     template:
       src: jenkins.j2
       dest: '/etc/systemd/system/jenkins.service'
+    tags:
+    - appserver
+
   - name: Ensure Jenkins is started and runs on startup.
     become: yes
     environment:
@@ -37,16 +51,25 @@
       name: jenkins
       state: started
       enabled: yes
+    tags:
+    - appserver
+
   - name: Wait until Jenkins starts
     become: yes
     wait_for:
       path: /var/log/messages
       search_regex: "Jenkins is fully up and running"
+    tags:
+    - appserver
+
   - name: Get version
     become: yes
     shell: java -jar "/home/{{ user_name }}/jenkins.war" --version
     register: jenkins_version
     changed_when: no
+    tags:
+    - appserver
+
   - name: Save fact
     become: yes
     copy:
@@ -55,6 +78,9 @@
           "version": "{{ jenkins_version.stdout }}"
         }
       dest: /etc/ansible/facts.d/jenkins.fact
+    tags:
+    - appserver
+
   when: 
   - stat_result.stat.exists == False
 

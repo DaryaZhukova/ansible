@@ -1,0 +1,6 @@
+- name: Test user
+  mymodule:
+    procname: "{{procname}}"
+    user: "{{username}}"
+  tags: sanity
+

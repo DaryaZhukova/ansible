@@ -2,6 +2,9 @@
   become: yes
   yum:
     name: httpd
+  tags:
+  - webserver
+
 - name: Start the httpd service
   become: yes
   service:
@@ -9,6 +12,9 @@
     state: started
     enabled: yes
   notify: Check httpd process
+  tags:
+  - webserver
+
 - name: Configuring proxy
   become: yes
   template:
@@ -17,15 +23,16 @@
   notify: 
     - Restart httpd service
     - Check httpd process
-- name: Create fact folder
-  become: yes
-  file:
-    path: /etc/ansible/facts.d
-    state: directory  
+  tags:
+  - webserver
+ 
 - name: Get version
   shell: /usr/sbin/httpd -v 2>&1|grep "Server version"|awk '{print $3}'
   register: httpd_version
   changed_when: no
+  tags:
+  - webserver
+
 - name: Save fact
   become: yes
   copy:
@@ -34,4 +41,6 @@
         "version": "{{ httpd_version.stdout }}"
       }
     dest: /etc/ansible/facts.d/httpd.fact
+  tags:
+  - webserver
 

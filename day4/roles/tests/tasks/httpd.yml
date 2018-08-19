@@ -1,0 +1,6 @@
+- name: Get port
+  become: yes
+  mymodule:
+    procname: "{{process}}"
+  tags: sanity
+

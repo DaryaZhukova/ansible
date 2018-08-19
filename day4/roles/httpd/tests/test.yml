@@ -3,3 +3,10 @@
   remote_user: root
   roles:
     - httpd
+  tasks:
+  - name: test port
+    become: yes
+    mymodule:
+      procname: httpd
+    tags: always
+

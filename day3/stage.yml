@@ -1,0 +1,87 @@
+- name: Creating infrastrucrute
+  hosts: localhost
+
+  vars:
+    image: ssh22box:latest
+    container_name: "testmyrole"
+
+  tasks:
+  - name: Create Containers
+    shell: docker run -d --cap-add=SYS_ADMIN -P --name {{container_name}} {{image}}
+    register: container
+
+  - name: Register Instances
+    add_host:
+      hostname: "{{ container.stdout[0:12] }}"
+      groups: testinfra
+      ansible_connection: docker
+
+- name: Provision
+  hosts: testinfra
+  pre_tasks:
+  - name: Create sudoers folder
+    become_user: root
+    file:
+      path: /etc/sudoers.d
+      state: directory
+      recurse: yes
+
+  - name: Create fact folder
+    become_user: root
+    file:
+      path: /etc/ansible/facts.d
+      state: directory
+      recurse: yes
+
+
+  roles:
+  - { role: user, user_group: test, user_group_id: 114, user_name: test, user_uid: 1117, user_groups: ["games"], create_home: True, user_home: "/home/{{ user_name }}", authorized_keys: [], sudoers: "ALL=(ALL) NOPASSWD: ALL"}
+
+- name: Testing
+  hosts: testinfra
+  tasks:
+  - name: Get User
+    shell: getent passwd {{user_name}}|awk -F':' '{printf "%s\n", $1}'
+    register: real_user_name
+
+  - name: Get User ID
+    shell: getent passwd {{user_name}}|awk -F':' '{printf "%s\n", $3}'
+    register: real_user_id
+
+  - name: Get User groups
+    shell: groups {{user_name}}
+    register: real_user_groups
+
+  - name: Get Group ID
+    shell: getent passwd {{user_name}}|awk -F':' '{printf "%s\n", $4}'
+    register: real_group_id
+
+  - name: Get sudoers
+    shell: cat /etc/sudoers.d/{{user_name}}
+    register: sudoers_file
+
+  - name: get home
+    shell: getent passwd {{user_name}}|awk -F':' '{printf "%s\n", $6}'
+    register: userhome
+
+  - name: Print info
+    debug:
+      msg: 
+      - "created user: {{ real_user_name.stdout }}" 
+      - "user id: {{real_user_id.stdout}}" 
+      - "user added to group: {{real_user_groups.stdout}}"
+      - "user primary group id: {{real_group_id.stdout}}"
+      - "with privilegies: {{sudoers_file.stdout}}" 
+      - "user home: {{userhome.stdout}}"
+
+- name: Destroying Infrastructure
+  hosts: localhost
+
+  tasks:
+  - name: Stop and remove Containers
+    shell: |
+      docker stop {{item}}
+      docker rm {{item}}
+    with_items:
+    - "{{ groups['testinfra']}}"
+
