@@ -1,0 +1,25 @@
+version: "2.3"
+services:
+{% for n in range(number) %}
+  host{{n+1}}:
+    image: sshbox
+    container_name: sshnode{{n+1}}
+    ports:
+      - "{{n+1}}022:22"
+    networks:
+      {{net}}:
+        ipv4_address: {{subnet.split('.')[0:3]|join('.')}}.{{n+2}}
+    logging:
+      driver: journald
+      options:
+        tag: {{add_tag}}
+    cpu_quota: 10000    
+    mem_limit: 500m
+{% endfor %}
+networks:
+  {{net}}:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: {{subnet}}

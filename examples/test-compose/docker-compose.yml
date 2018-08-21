@@ -1,0 +1,79 @@
+version: "2.3"
+services:
+  host1:
+    image: sshbox
+    container_name: sshnode1
+    ports:
+      - "1022:22"
+    networks:
+      dzhukova:
+        ipv4_address: 123.45.7.2
+    logging:
+      driver: journald
+      options:
+        tag: test
+    cpu_quota: 10000    
+    mem_limit: 500m
+  host2:
+    image: sshbox
+    container_name: sshnode2
+    ports:
+      - "2022:22"
+    networks:
+      dzhukova:
+        ipv4_address: 123.45.7.3
+    logging:
+      driver: journald
+      options:
+        tag: test
+    cpu_quota: 10000    
+    mem_limit: 500m
+  host3:
+    image: sshbox
+    container_name: sshnode3
+    ports:
+      - "3022:22"
+    networks:
+      dzhukova:
+        ipv4_address: 123.45.7.4
+    logging:
+      driver: journald
+      options:
+        tag: test
+    cpu_quota: 10000    
+    mem_limit: 500m
+  host4:
+    image: sshbox
+    container_name: sshnode4
+    ports:
+      - "4022:22"
+    networks:
+      dzhukova:
+        ipv4_address: 123.45.7.5
+    logging:
+      driver: journald
+      options:
+        tag: test
+    cpu_quota: 10000    
+    mem_limit: 500m
+  host5:
+    image: sshbox
+    container_name: sshnode5
+    ports:
+      - "5022:22"
+    networks:
+      dzhukova:
+        ipv4_address: 123.45.7.6
+    logging:
+      driver: journald
+      options:
+        tag: test
+    cpu_quota: 10000    
+    mem_limit: 500m
+networks:
+  dzhukova:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 123.45.7.0/24

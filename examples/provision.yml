@@ -1,0 +1,34 @@
+- hosts: localhost
+  vars:
+    add_tag: test
+    net: dzhukova
+    subnet: 123.45.7.0/24
+    number: 5
+    project: external-compose
+  tasks:
+  - name: Create docker-compose
+    template:
+      src: create_infra.j2
+      dest: test-compose/docker-compose.yml
+    tags:
+    - create
+
+  - name: Run docker-compose
+    docker_service:
+      project_name: "{{project}}"
+      project_src: test-compose
+    register: output
+    tags:
+    - run
+
+  - name: Remove containers
+    shell: docker stop sshnode{{item}} && docker rm sshnode{{item}}
+    with_sequence: count=5
+    tags:
+    - remove
+
+  - name: Remove net
+    shell: docker network rm {{project}}_{{ net }}
+    tags:
+    - remove
+  
